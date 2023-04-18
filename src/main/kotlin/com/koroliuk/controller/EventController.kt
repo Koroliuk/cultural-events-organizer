@@ -3,9 +3,12 @@ package com.koroliuk.controller
 import com.koroliuk.model.Event
 import com.koroliuk.repository.EventRepository
 import io.micronaut.http.annotation.*
+import io.micronaut.security.rules.SecurityRule
 import jakarta.inject.Inject
+import io.micronaut.security.annotation.Secured
 
 @Controller("/events")
+@Secured(SecurityRule.IS_AUTHENTICATED)
 class EventController(@Inject private val repository: EventRepository) {
 
     @Post

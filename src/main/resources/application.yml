@@ -7,6 +7,8 @@ micronaut:
     authentication: bearer
     token:
       jwt:
+        bearer:
+          prefix: ""
         signatures:
           secret:
             generator:
@@ -16,6 +18,13 @@ micronaut:
             secret: '"${JWT_GENERATOR_SIGNATURE_SECRET}"'
           access-token:
             expiration: 60
+    endpoints:
+      login:
+        path: /api/login
+      logout:
+        enabled: false
+      oauth:
+        path: /api/refresh_token
 
 jpa:
   default:

@@ -7,4 +7,6 @@ interface UserService {
 
     fun create(user: User)
 
+    fun findByUsername(username: String): User?
+
 }
