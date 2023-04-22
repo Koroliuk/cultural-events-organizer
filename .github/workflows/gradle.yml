@@ -1,11 +1,16 @@
-name: Kotlin CI
+name: Kotlin CI with Gradle
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  JWT_GENERATOR_SIGNATURE_SECRET: 'some_test_value_some_test_value_some_test_value_some_test_value'
 
 jobs:
-  build_and_test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,7 +22,7 @@ jobs:
           distribution: 'temurin'
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@ccb4328a959376b642e027874838f60f8e596de3
-      - name: Run the Gradle package task
+      - name: Build with Gradle
         uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629
         with:
-          arguments: -b ci.gradle package
+          arguments: build

@@ -38,6 +38,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     compileOnly("org.graalvm.nativeimage:svm")
+    testImplementation("com.h2database:h2")
 }
 
 allOpen {
