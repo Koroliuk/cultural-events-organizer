@@ -1,9 +1,12 @@
 package com.koroliuk.controller
 
 import com.koroliuk.dto.EventDto
+import com.koroliuk.dto.PurchaseRequest
 import com.koroliuk.model.Event
 import com.koroliuk.model.EventType
 import com.koroliuk.service.EventService
+import com.koroliuk.service.TicketService
+import com.koroliuk.service.UserService
 import com.koroliuk.utils.MappingUtils
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
@@ -11,10 +14,15 @@ import io.micronaut.http.annotation.*
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import jakarta.inject.Inject
+import java.security.Principal
 
 @Controller("/api/events")
 @Secured(SecurityRule.IS_AUTHENTICATED)
-class EventController(@Inject private val eventService: EventService) {
+class EventController(
+    @Inject private val eventService: EventService,
+    @Inject private val ticketService: TicketService,
+    @Inject private val userService: UserService,
+) {
 
     @Post
     fun create(@Body eventDto: EventDto): HttpResponse<Any> {
@@ -63,6 +71,22 @@ class EventController(@Inject private val eventService: EventService) {
     fun deleteById(id: Long): HttpResponse<Any> {
         eventService.deleteById(id)
         return HttpResponse.status(HttpStatus.NO_CONTENT)
+    }
+
+    @Post("{eventId}/tickets")
+    fun purchaseTicket(@PathVariable eventId: Long, @Body purchaseRequest: PurchaseRequest,
+                       principal: Principal): HttpResponse<Any> {
+        if (!eventService.existById(eventId)) {
+            throw java.lang.IllegalArgumentException("There is no such event")
+        }
+        val amount = purchaseRequest.amount
+        val event = eventService.findById(eventId)
+        val user = userService.findByUsername(principal.name)
+        if (user != null) {
+            ticketService.purchaseTickets(event, user, amount)
+            return HttpResponse.ok()
+        }
+        return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
 }
