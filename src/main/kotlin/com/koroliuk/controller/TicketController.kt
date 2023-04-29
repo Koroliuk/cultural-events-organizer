@@ -20,6 +20,7 @@ class TicketController (
 ) {
 
     @Get
+    @Secured("USER")
     fun getPurchasedTickets(principal: Principal): HttpResponse<Any> {
         val user = userService.findByUsername(principal.name)
         if (user != null) {
@@ -30,6 +31,7 @@ class TicketController (
     }
 
     @Delete("/{id}")
+    @Secured("USER")
     fun cancelById(id: Long): HttpResponse<Any> {
         ticketService.deleteById(id)
         return HttpResponse.status(HttpStatus.NO_CONTENT)

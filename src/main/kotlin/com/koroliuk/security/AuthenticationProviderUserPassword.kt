@@ -25,7 +25,7 @@ class AuthenticationProviderUserPassword(
         val user = userService.findByUsername(username)
         return Flux.create({ emitter: FluxSink<AuthenticationResponse> ->
             if (user != null && user.username == username && customPasswordEncoder.matches(password, user.passwordHash)) {
-                emitter.next(AuthenticationResponse.success(username))
+                emitter.next(AuthenticationResponse.success(username, listOf(user.role.toString())))
                 emitter.complete()
             } else {
                 emitter.error(AuthenticationResponse.exception())

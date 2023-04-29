@@ -25,6 +25,9 @@ class User(
     @Column(nullable = false)
     var role: Role? = null,
 
+    @Column(nullable = false)
+    var blocked: Boolean = false,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
