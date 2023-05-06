@@ -9,6 +9,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.time.Instant
 import java.time.LocalDateTime
+import java.util.stream.Collectors
 
 
 @Singleton
@@ -28,6 +29,12 @@ class TicketServiceImpl(
 
     override fun findPurchasedTicketsByUserId(userId: Long): MutableIterable<Ticket> {
         return ticketRepository.findByUserId(userId)
+    }
+
+    override fun findUsersByEvent(event: Event): Set<User> {
+        return ticketRepository.findByEvent(event).stream()
+            .map { ticket -> ticket.user }
+            .collect(Collectors.toSet())
     }
 
     override fun deleteById(id: Long) {

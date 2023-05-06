@@ -10,6 +10,8 @@ interface TicketService {
 
     fun findPurchasedTicketsByUserId(userId: Long) : MutableIterable<Ticket>
 
+    fun findUsersByEvent(event: Event): Set<User>
+
     fun deleteById(id: Long)
 
 }

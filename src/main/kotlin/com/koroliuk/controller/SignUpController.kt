@@ -1,7 +1,6 @@
 package com.koroliuk.controller
 
 import com.koroliuk.dto.UserDto
-import com.koroliuk.model.Role
 import com.koroliuk.service.AuthenticationService
 import com.koroliuk.utils.MappingUtils
 import io.micronaut.http.HttpResponse
@@ -21,7 +20,6 @@ class SignUpController (@Inject private val authenticationService: Authenticatio
     @Post
     fun signUp(@Body userDto: UserDto): HttpResponse<Any> {
         val user = MappingUtils.convertToEntity(userDto)
-        user.role = Role.USER
         authenticationService.signUp(user)
         return HttpResponse.created("Successfully signed up!")
     }

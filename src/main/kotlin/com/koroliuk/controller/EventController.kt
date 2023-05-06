@@ -44,7 +44,7 @@ class EventController(
             val event = MappingUtils.convertToEntity(eventDto)
             return HttpResponse.created(eventService.create(event))
         }
-        return HttpResponse.badRequest();
+        return HttpResponse.badRequest()
     }
 
 

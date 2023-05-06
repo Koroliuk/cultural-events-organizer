@@ -1,8 +1,10 @@
 package com.koroliuk.utils
 
 import com.koroliuk.dto.EventDto
+import com.koroliuk.dto.NotificationDto
 import com.koroliuk.dto.UserDto
 import com.koroliuk.model.Event
+import com.koroliuk.model.Notification
 import com.koroliuk.model.User
 
 object MappingUtils {
@@ -26,6 +28,12 @@ object MappingUtils {
             eventType = eventDto.eventType,
             location = eventDto.location,
             url = eventDto.url
+        )
+    }
+
+    fun convertToDto(notification: Notification): NotificationDto {
+        return NotificationDto(
+            message = notification.message
         )
     }
 

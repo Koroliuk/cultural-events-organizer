@@ -3,21 +3,29 @@ package com.koroliuk.service.impl
 import com.koroliuk.model.Event
 import com.koroliuk.repository.EventRepository
 import com.koroliuk.service.EventService
+import com.koroliuk.service.NotificationService
+import com.koroliuk.service.TicketService
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
-
+import javax.transaction.Transactional
 
 @Singleton
-class EventServiceImpl(
-    @Inject private val eventRepository: EventRepository
+open class EventServiceImpl(
+    @Inject private val eventRepository: EventRepository,
+    @Inject private val ticketService: TicketService,
+    @Inject private val notificationService: NotificationService
 ) : EventService {
 
     override fun create(event: Event): Event {
         return eventRepository.save(event)
     }
 
+    @Transactional
     override fun update(event: Event): Event {
-        return eventRepository.update(event)
+        val updatedEvent = eventRepository.update(event)
+        ticketService.findUsersByEvent(updatedEvent).stream()
+            .forEach { user -> notificationService.addNotificationForUser(user.username, "Updated event") }
+        return updatedEvent
     }
 
     override fun findById(id: Long): Event {
