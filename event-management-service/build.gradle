@@ -74,5 +74,6 @@ micronaut {
     }
 }
 
-
-
+tasks.named("dockerBuild") {
+    images = ["koroliuk/event-management-service:latest"]
+}

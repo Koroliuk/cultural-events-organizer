@@ -34,11 +34,11 @@ jpa:
 
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/cultural_events_organizer_db
+    url: jdbc:postgresql://${POSTGRES_ENDPOINT}/${POSTGRES_DATABASE}
     driverClassName: org.postgresql.Driver
-    username: db_user
-    password: p@SSw0rd
-    schema-generate: CREATE_DROP
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    schema-generate: CREATE
     dialect: POSTGRES
 
 netty:
