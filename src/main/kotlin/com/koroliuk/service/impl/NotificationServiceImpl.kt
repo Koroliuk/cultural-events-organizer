@@ -1,6 +1,8 @@
 package com.koroliuk.service.impl
 
+import com.koroliuk.model.Event
 import com.koroliuk.model.Notification
+import com.koroliuk.model.NotificationType
 import com.koroliuk.repository.NotificationRepository
 import com.koroliuk.service.NotificationService
 import com.koroliuk.service.UserService
@@ -32,12 +34,14 @@ class NotificationServiceImpl(
         )
     }
 
-    override fun addNotificationForUser(username: String, message: String): Notification {
+    override fun addNotificationForUser(username: String, message: String, type: NotificationType, event: Event?): Notification {
         val user = userService.findByUsername(username) ?: throw IllegalArgumentException("No such user")
         val notification = Notification(
             message = message,
             created = LocalDateTime.now(),
-            user = user
+            user = user,
+            event = event,
+            type = type
         )
         sink.tryEmitNext(notification)
         notificationRepository.save(notification)

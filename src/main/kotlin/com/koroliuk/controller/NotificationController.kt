@@ -2,6 +2,7 @@ package com.koroliuk.controller
 
 import com.koroliuk.dto.NotificationDto
 import com.koroliuk.model.Notification
+import com.koroliuk.model.NotificationType
 import com.koroliuk.service.NotificationService
 import com.koroliuk.utils.MappingUtils
 import io.micronaut.http.MediaType
@@ -18,7 +19,7 @@ import java.security.Principal
 import java.time.LocalDateTime
 
 
-@Controller("/notifications")
+@Controller("/api/notifications")
 @Secured("USER")
 class NotificationController(
     @Inject private val notificationService: NotificationService
@@ -32,7 +33,7 @@ class NotificationController(
 
     @Post
     fun addNotificationForUser(@Body message: String, principal: Principal): Notification {
-        return notificationService.addNotificationForUser(principal.name, message)
+        return notificationService.addNotificationForUser(principal.name, message, NotificationType.INFO, null)
     }
 
 }

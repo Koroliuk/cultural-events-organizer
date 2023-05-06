@@ -7,6 +7,11 @@ import javax.validation.constraints.NotBlank
 class NotificationDto (
 
     @NotBlank
-    val message: String
+    val message: String,
+
+    @NotBlank
+    val type: String,
+
+    val eventId: Long? = null
 
 )

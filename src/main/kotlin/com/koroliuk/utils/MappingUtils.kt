@@ -33,7 +33,13 @@ object MappingUtils {
 
     fun convertToDto(notification: Notification): NotificationDto {
         return NotificationDto(
-            message = notification.message
+            message = notification.message,
+            type = notification.type.toString(),
+            eventId = if (notification.event != null) {
+                notification.event!!.id
+            } else {
+                null
+            }
         )
     }
 

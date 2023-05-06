@@ -1,6 +1,7 @@
 package com.koroliuk.service.impl
 
 import com.koroliuk.model.Event
+import com.koroliuk.model.NotificationType
 import com.koroliuk.repository.EventRepository
 import com.koroliuk.service.EventService
 import com.koroliuk.service.NotificationService
@@ -24,7 +25,7 @@ open class EventServiceImpl(
     override fun update(event: Event): Event {
         val updatedEvent = eventRepository.update(event)
         ticketService.findUsersByEvent(updatedEvent).stream()
-            .forEach { user -> notificationService.addNotificationForUser(user.username, "Updated event") }
+            .forEach { user -> notificationService.addNotificationForUser(user.username, "Updated event", NotificationType.EVENT_UPDATE, event) }
         return updatedEvent
     }
 

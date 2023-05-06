@@ -13,6 +13,14 @@ class Notification (
     @ManyToOne
     val user: User,
 
+    @ManyToOne
+    val event: Event? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var type: NotificationType? = null,
+
+
     @Column(nullable = false)
     val created: LocalDateTime,
 
