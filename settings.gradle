@@ -1,2 +1,3 @@
 rootProject.name = "cultural-events-organizer"
 
+include("event-management-service")
