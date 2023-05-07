@@ -13,7 +13,7 @@ interface EventService {
 
     fun findAll(): MutableIterable<Event>
 
-    fun searchEvents(keywords: List<String>?, dateFrom: LocalDateTime?, dateTo: LocalDateTime?): MutableIterable<Event>
+    fun searchEvents(keywords: List<String>?, categories: List<String>?, dateFrom: LocalDateTime?, dateTo: LocalDateTime?): MutableIterable<Event>
 
     fun existById(id: Long): Boolean
 

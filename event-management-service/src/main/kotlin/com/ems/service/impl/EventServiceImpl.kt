@@ -39,12 +39,12 @@ open class EventServiceImpl(
         return eventRepository.findAll()
     }
 
-    override fun searchEvents(keywords: List<String>?, dateFrom: LocalDateTime?, dateTo: LocalDateTime?): MutableIterable<Event> {
+    override fun searchEvents(keywords: List<String>?, categories: List<String>?, dateFrom: LocalDateTime?, dateTo: LocalDateTime?): MutableIterable<Event> {
         if (keywords != null) {
             val keywordsPattern = keywords.joinToString("|", prefix = "(", postfix = ")") { ".*%$it%.*" }
-            return eventRepository.searchEventsByStartTimeBetweenAndKeywords(dateFrom, dateTo, keywordsPattern)
+            return eventRepository.searchEventsByStartTimeBetweenAndKeywords(dateFrom, dateTo, keywordsPattern, categories)
         }
-        return eventRepository.searchByStartTimeBetween(dateFrom, dateTo)
+        return eventRepository.searchByStartTimeBetween(dateFrom, dateTo, categories)
     }
 
     override fun existById(id: Long): Boolean {

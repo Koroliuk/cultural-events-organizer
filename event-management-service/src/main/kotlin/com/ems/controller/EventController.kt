@@ -4,6 +4,7 @@ import com.ems.dto.EventDto
 import com.ems.dto.PurchaseRequest
 import com.ems.model.Event
 import com.ems.model.EventType
+import com.ems.service.EventCategoryService
 import com.ems.service.EventService
 import com.ems.service.TicketService
 import com.ems.service.UserService
@@ -21,9 +22,10 @@ import java.time.LocalDateTime
 @Controller("/api/events")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class EventController(
-    @Inject private val eventService: EventService,
-    @Inject private val ticketService: TicketService,
-    @Inject private val userService: UserService,
+        @Inject private val eventService: EventService,
+        @Inject private val ticketService: TicketService,
+        @Inject private val userService: UserService,
+        @Inject private val eventCategoryService: EventCategoryService
 ) {
 
     @Post
@@ -43,7 +45,11 @@ class EventController(
             if (EventType.OFFLINE == eventDto.eventType && eventDto.location == null) {
                 throw IllegalArgumentException("Location must be filled for offline event")
             }
-            val event = MappingUtils.convertToEntity(eventDto)
+            val category = eventCategoryService.findByName(eventDto.category)
+            if (category == null) {
+                throw IllegalArgumentException("No such category")
+            }
+            val event = MappingUtils.convertToEntity(eventDto, category)
             return HttpResponse.created(eventService.create(event))
         }
         return HttpResponse.badRequest()
@@ -56,7 +62,11 @@ class EventController(
         if (!eventService.existById(id)) {
             throw IllegalArgumentException("No event with a such id")
         }
-        val event = MappingUtils.convertToEntity(eventDto)
+        val category = eventCategoryService.findByName(eventDto.category)
+        if (category == null) {
+            throw IllegalArgumentException("No such category")
+        }
+        val event = MappingUtils.convertToEntity(eventDto, category)
         event.id = id
         return eventService.update(event)
     }
@@ -75,12 +85,13 @@ class EventController(
     @Secured("USER")
     fun searchEvents(@QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateFrom: LocalDateTime?,
                      @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateTo: LocalDateTime?,
-                     @QueryValue keywords: List<String>?): MutableIterable<Event> {
-        return eventService.searchEvents(keywords, dateFrom, dateTo)
+                     @QueryValue keywords: List<String>?,
+                     @QueryValue categories: List<String>?): MutableIterable<Event> {
+        return eventService.searchEvents(keywords, categories, dateFrom, dateTo)
     }
 
     @Delete("/{id}")
-    @Secured("USER","ADMIN")
+    @Secured("USER", "ADMIN")
     fun deleteById(id: Long): HttpResponse<Any> {
         //todo: delete tickets also
         eventService.deleteById(id)

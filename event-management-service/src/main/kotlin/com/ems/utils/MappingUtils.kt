@@ -1,13 +1,7 @@
 package com.ems.utils
 
-import com.ems.dto.EventDto
-import com.ems.dto.EventFeedbackDto
-import com.ems.dto.NotificationDto
-import com.ems.dto.UserDto
-import com.ems.model.Event
-import com.ems.model.EventFeedback
-import com.ems.model.Notification
-import com.ems.model.User
+import com.ems.dto.*
+import com.ems.model.*
 
 object MappingUtils {
 
@@ -21,15 +15,16 @@ object MappingUtils {
         )
     }
 
-    fun convertToEntity(eventDto: EventDto): Event {
+    fun convertToEntity(eventDto: EventDto, category: EventCategory): Event {
         return Event(
-            name = eventDto.name,
-            description = eventDto.description,
-            startTime = eventDto.startTime,
-            endTime = eventDto.endTime,
-            eventType = eventDto.eventType,
-            location = eventDto.location,
-            url = eventDto.url
+                name = eventDto.name,
+                description = eventDto.description,
+                startTime = eventDto.startTime,
+                endTime = eventDto.endTime,
+                eventType = eventDto.eventType,
+                location = eventDto.location,
+                url = eventDto.url,
+                category = category
         )
     }
 
@@ -39,6 +34,13 @@ object MappingUtils {
             user = user,
             rate = eventFeedbackDto.rate,
             feedback = eventFeedbackDto.feedback
+        )
+    }
+
+    fun convertToEntity(eventCategoryDto: EventCategoryDto): EventCategory {
+        return EventCategory(
+                name = eventCategoryDto.name,
+                description = eventCategoryDto.description
         )
     }
 
