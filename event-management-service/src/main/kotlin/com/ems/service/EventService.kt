@@ -1,6 +1,7 @@
 package com.ems.service
 
 import com.ems.model.Event
+import java.time.LocalDateTime
 
 interface EventService {
 
@@ -12,7 +13,7 @@ interface EventService {
 
     fun findAll(): MutableIterable<Event>
 
-    fun searchEventsByKeywords(keywords: List<String>): MutableIterable<Event>
+    fun searchEvents(keywords: List<String>?, dateFrom: LocalDateTime?, dateTo: LocalDateTime?): MutableIterable<Event>
 
     fun existById(id: Long): Boolean
 

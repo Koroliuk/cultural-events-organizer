@@ -8,6 +8,7 @@ import com.ems.service.NotificationService
 import com.ems.service.TicketService
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import java.time.LocalDateTime
 import javax.transaction.Transactional
 
 @Singleton
@@ -38,9 +39,12 @@ open class EventServiceImpl(
         return eventRepository.findAll()
     }
 
-    override fun searchEventsByKeywords(keywords: List<String>): MutableIterable<Event> {
-        val keywordsPattern = keywords.joinToString("|", prefix = "(", postfix = ")") { ".*%$it%.*" }
-        return eventRepository.searchEventsByKeywords(if (keywords.isEmpty()) null else keywordsPattern)
+    override fun searchEvents(keywords: List<String>?, dateFrom: LocalDateTime?, dateTo: LocalDateTime?): MutableIterable<Event> {
+        if (keywords != null) {
+            val keywordsPattern = keywords.joinToString("|", prefix = "(", postfix = ")") { ".*%$it%.*" }
+            return eventRepository.searchEventsByStartTimeBetweenAndKeywords(dateFrom, dateTo, keywordsPattern)
+        }
+        return eventRepository.searchByStartTimeBetween(dateFrom, dateTo)
     }
 
     override fun existById(id: Long): Boolean {

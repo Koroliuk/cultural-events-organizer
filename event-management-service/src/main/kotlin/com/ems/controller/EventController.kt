@@ -8,6 +8,7 @@ import com.ems.service.EventService
 import com.ems.service.TicketService
 import com.ems.service.UserService
 import com.ems.utils.MappingUtils
+import io.micronaut.core.convert.format.Format
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.*
@@ -15,6 +16,7 @@ import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import jakarta.inject.Inject
 import java.security.Principal
+import java.time.LocalDateTime
 
 @Controller("/api/events")
 @Secured(SecurityRule.IS_AUTHENTICATED)
@@ -69,14 +71,12 @@ class EventController(
     @Secured("USER")
     fun findAll(): MutableIterable<Event> = eventService.findAll()
 
-    @Get("/search{?keywords}")
+    @Get("/search")
     @Secured("USER")
-    fun searchEvents(keywords: List<String>?): MutableIterable<Event> {
-        return if (keywords != null) {
-            eventService.searchEventsByKeywords(keywords)
-        } else {
-            eventService.findAll()
-        }
+    fun searchEvents(@QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateFrom: LocalDateTime?,
+                     @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateTo: LocalDateTime?,
+                     @QueryValue keywords: List<String>?): MutableIterable<Event> {
+        return eventService.searchEvents(keywords, dateFrom, dateTo)
     }
 
     @Delete("/{id}")
