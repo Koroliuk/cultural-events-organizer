@@ -2,3 +2,4 @@ rootProject.name = "cultural-events-organizer"
 
 include("event-management-service")
 include("notification-cleanup-service")
+include("event-monitoring-service")
