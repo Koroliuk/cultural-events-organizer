@@ -23,6 +23,9 @@ class Event(
     @Column(nullable = false)
     val eventType: EventType,
 
+    @ManyToOne
+    val category: EventCategory,
+
     @Column
     val location: String?,
 

@@ -24,6 +24,9 @@ data class EventDto(
     @NotBlank
     val eventType: EventType,
 
+    @NotBlank
+    val category: String,
+
     val location: String?,
 
     val url: String?
