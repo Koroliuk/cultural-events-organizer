@@ -8,7 +8,7 @@ plugins {
 }
 
 version = "0.1"
-group = "com.koroliuk"
+group = "com.ems"
 
 repositories {
     mavenCentral()
@@ -46,7 +46,7 @@ allOpen {
 }
 
 application {
-    mainClass.set("com.koroliuk.ApplicationKt")
+    mainClass.set("com.ems.ApplicationKt")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
@@ -70,7 +70,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("com.koroliuk.*")
+        annotations("com.ems.*")
     }
 }
 
