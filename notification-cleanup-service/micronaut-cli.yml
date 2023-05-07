@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.koroliuk.ncs
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle
+features: [ annotation-api, app-name, aws-lambda, aws-lambda-handler-default, data, data-jpa, gradle, hibernate-jpa, jackson-databind, jdbc-hikari, junit, kotlin, kotlin-application, kotlin-build, logback, micronaut-build, postgres, readme, shade, snapstart, test-resources, x86, yaml ]
