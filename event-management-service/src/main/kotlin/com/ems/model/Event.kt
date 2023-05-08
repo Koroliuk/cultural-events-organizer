@@ -26,6 +26,9 @@ class Event(
     @ManyToOne
     val category: EventCategory,
 
+    @OneToOne
+    val creator: User,
+
     @Column
     val location: String?,
 

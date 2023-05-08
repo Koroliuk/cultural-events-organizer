@@ -10,6 +10,7 @@ import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.security.annotation.Secured
 import jakarta.inject.Inject
@@ -43,6 +44,19 @@ class EventFeedbackController(
             return HttpResponse.ok()
         }
         return HttpResponse.badRequest()
+    }
+
+    @Get("/{eventId}")
+    fun getEventFeedbacks(eventId: Long, principal: Principal): HttpResponse<Any> {
+        val user = userService.findByUsername(principal.name)
+        val event = eventService.findById(eventId)
+        if (event.creator.username != user!!.username) {
+            return HttpResponse.notAllowed()
+        }
+        if (event.endTime > LocalDateTime.now()) {
+            return HttpResponse.badRequest("Event is not ended")
+        }
+        return HttpResponse.ok(eventFeedbackService.findByEventIdWithNonEmptyFeedback(eventId))
     }
 
 }

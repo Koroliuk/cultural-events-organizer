@@ -15,16 +15,17 @@ object MappingUtils {
         )
     }
 
-    fun convertToEntity(eventDto: EventDto, category: EventCategory): Event {
+    fun convertToEntity(eventDto: EventDto, category: EventCategory, user: User): Event {
         return Event(
-                name = eventDto.name,
-                description = eventDto.description,
-                startTime = eventDto.startTime,
-                endTime = eventDto.endTime,
-                eventType = eventDto.eventType,
-                location = eventDto.location,
-                url = eventDto.url,
-                category = category
+            name = eventDto.name,
+            description = eventDto.description,
+            startTime = eventDto.startTime,
+            endTime = eventDto.endTime,
+            eventType = eventDto.eventType,
+            location = eventDto.location,
+            url = eventDto.url,
+            category = category,
+            creator = user
         )
     }
 
@@ -39,8 +40,8 @@ object MappingUtils {
 
     fun convertToEntity(eventCategoryDto: EventCategoryDto): EventCategory {
         return EventCategory(
-                name = eventCategoryDto.name,
-                description = eventCategoryDto.description
+            name = eventCategoryDto.name,
+            description = eventCategoryDto.description
         )
     }
 

@@ -2,6 +2,7 @@ package com.ems.service
 
 import com.ems.model.Event
 import com.ems.model.Ticket
+import com.ems.model.TicketStatus
 import com.ems.model.User
 
 interface TicketService {
@@ -14,6 +15,8 @@ interface TicketService {
 
     fun findByEventAndUser(event: Event, user: User): Ticket?
 
-    fun deleteById(id: Long)
+    fun countByStatusAndEventId(status: TicketStatus, eventId: Long): Long
+
+    fun cancelById(id: Long)
 
 }
