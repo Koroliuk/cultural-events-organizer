@@ -49,7 +49,7 @@ class EventController(
             if (category == null) {
                 throw IllegalArgumentException("No such category")
             }
-            val event = MappingUtils.convertToEntity(eventDto, category)
+            val event = MappingUtils.convertToEntity(eventDto, category, user)
             return HttpResponse.created(eventService.create(event))
         }
         return HttpResponse.badRequest()
@@ -58,7 +58,7 @@ class EventController(
 
     @Put("/{id}")
     @Secured("USER")
-    fun update(@PathVariable id: Long, @Body eventDto: EventDto): Event {
+    fun update(@PathVariable id: Long, @Body eventDto: EventDto, principal: Principal): Event {
         if (!eventService.existById(id)) {
             throw IllegalArgumentException("No event with a such id")
         }
@@ -66,7 +66,8 @@ class EventController(
         if (category == null) {
             throw IllegalArgumentException("No such category")
         }
-        val event = MappingUtils.convertToEntity(eventDto, category)
+        val user = userService.findByUsername(principal.name)
+        val event = MappingUtils.convertToEntity(eventDto, category, user!!)
         event.id = id
         return eventService.update(event)
     }

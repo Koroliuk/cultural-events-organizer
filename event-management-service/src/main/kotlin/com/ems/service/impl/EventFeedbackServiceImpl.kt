@@ -15,4 +15,8 @@ class EventFeedbackServiceImpl(
         eventFeedbackRepository.save(eventFeedback)
     }
 
+    override fun findByEventIdWithNonEmptyFeedback(id: Long): List<EventFeedback> {
+        return eventFeedbackRepository.findByEventIdAndFeedbackIsNotNullAndFeedbackIsNotEmpty(id)
+    }
+
 }

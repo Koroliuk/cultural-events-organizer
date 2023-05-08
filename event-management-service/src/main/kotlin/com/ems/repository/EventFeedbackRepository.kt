@@ -7,5 +7,6 @@ import io.micronaut.data.repository.CrudRepository
 @Repository
 interface EventFeedbackRepository : CrudRepository<EventFeedback, Long> {
 
+    fun findByEventIdAndFeedbackIsNotNullAndFeedbackIsNotEmpty(id: Long): List<EventFeedback>
 
 }

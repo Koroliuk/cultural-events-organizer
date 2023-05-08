@@ -6,4 +6,6 @@ interface EventFeedbackService {
 
     fun leaveFeedback(eventFeedback: EventFeedback)
 
+    fun findByEventIdWithNonEmptyFeedback(id: Long): List<EventFeedback>
+
 }
