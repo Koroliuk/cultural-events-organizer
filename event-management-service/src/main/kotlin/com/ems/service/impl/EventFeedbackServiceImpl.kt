@@ -19,4 +19,12 @@ class EventFeedbackServiceImpl(
         return eventFeedbackRepository.findByEventIdAndFeedbackIsNotNullAndFeedbackIsNotEmpty(id)
     }
 
+    override fun countEventIdWithNonEmptyFeedback(id: Long): Long {
+        return eventFeedbackRepository.countByEventIdAndFeedbackIsNotNullAndFeedbackIsNotEmpty(id)
+    }
+
+    override fun getAvgRateByEventId(id: Long): Float {
+        return eventFeedbackRepository.getAvgRateByEventId(id)
+    }
+
 }

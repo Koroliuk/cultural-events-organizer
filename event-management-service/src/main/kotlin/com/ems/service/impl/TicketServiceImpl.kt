@@ -2,6 +2,7 @@ package com.ems.service.impl
 
 import com.ems.model.Event
 import com.ems.model.Ticket
+import com.ems.model.TicketStatus
 import com.ems.model.User
 import com.ems.repository.TicketRepository
 import com.ems.service.TicketService
@@ -22,7 +23,7 @@ class TicketServiceImpl(
             throw IllegalArgumentException("Event already ended")
         }
         for (i in 1..amount) {
-            val ticket = Ticket(event, user, Instant.now())
+            val ticket = Ticket(event, user, Instant.now(), TicketStatus.ACTIVE)
             ticketRepository.save(ticket)
         }
     }
@@ -41,8 +42,18 @@ class TicketServiceImpl(
         return ticketRepository.findByEventAndUser(event, user)
     }
 
-    override fun deleteById(id: Long) {
-        ticketRepository.deleteById(id)
+    override fun countByStatusAndEventId(status: TicketStatus, eventId: Long): Long {
+        return ticketRepository.countByStatusAndEventId(status, eventId)
+    }
+
+    override fun cancelById(id: Long) {
+        val optionalTicket = ticketRepository.findById(id)
+        if (optionalTicket.isEmpty) {
+            throw IllegalArgumentException("No ticket with such id")
+        }
+        val ticket = optionalTicket.get()
+        ticket.status = TicketStatus.CANCELED
+        ticketRepository.update(ticket)
     }
 
 }

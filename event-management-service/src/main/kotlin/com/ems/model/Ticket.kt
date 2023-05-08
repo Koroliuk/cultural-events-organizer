@@ -17,6 +17,10 @@ class Ticket(
     @Column(name = "purchase_time", nullable = false)
     val purchaseTime: Instant,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: TicketStatus,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null

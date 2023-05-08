@@ -8,4 +8,9 @@ interface EventFeedbackService {
 
     fun findByEventIdWithNonEmptyFeedback(id: Long): List<EventFeedback>
 
+    fun countEventIdWithNonEmptyFeedback(id: Long): Long
+
+    fun getAvgRateByEventId(id: Long): Float
+
+
 }
