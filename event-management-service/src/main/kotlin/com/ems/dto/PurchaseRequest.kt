@@ -10,6 +10,8 @@ class PurchaseRequest(
 
     @NonNull
     @Positive
-    val amount: Long
+    val amount: Long,
+
+    val isUnSubscribeFromWaitingList: Boolean
 
 )

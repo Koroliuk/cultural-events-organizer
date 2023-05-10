@@ -29,5 +29,9 @@ data class EventDto(
 
     val location: String?,
 
+    val isTicketsLimited: Boolean,
+
+    val maxTickets: Long? = null,
+
     val url: String?
 )

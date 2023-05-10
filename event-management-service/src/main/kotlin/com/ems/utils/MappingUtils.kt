@@ -25,7 +25,9 @@ object MappingUtils {
             location = eventDto.location,
             url = eventDto.url,
             category = category,
-            creator = user
+            creator = user,
+            isTicketsLimited = eventDto.isTicketsLimited,
+            maxTickets = eventDto.maxTickets
         )
     }
 

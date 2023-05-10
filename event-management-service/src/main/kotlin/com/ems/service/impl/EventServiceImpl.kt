@@ -15,7 +15,8 @@ open class EventServiceImpl(
     @Inject private val ticketService: TicketService,
     @Inject private val notificationService: NotificationService,
     @Inject private val feedbackService: EventFeedbackService,
-    @Inject private val userService: UserService
+    @Inject private val userService: UserService,
+    @Inject private val waitListService: WaitListService
 ) : EventService {
 
     override fun create(event: Event): Event {
@@ -78,6 +79,18 @@ open class EventServiceImpl(
                 .distinct()
         }
         return Collections.emptyList()
+    }
+
+    override fun waitForEventTickets(eventId: Long, username: String) {
+        val user = userService.findByUsername(username)
+        val event = eventRepository.findById(eventId)
+        waitListService.create(event.get(), user!!)
+    }
+
+    override fun unWaitForEventTickets(eventId: Long, username: String) {
+        val user = userService.findByUsername(username)
+        val event = eventRepository.findById(eventId)
+        waitListService.deleteByEventAndUser(event.get(), user!!)
     }
 
     override fun existById(id: Long): Boolean {
