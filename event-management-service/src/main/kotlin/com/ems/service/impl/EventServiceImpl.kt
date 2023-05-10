@@ -2,13 +2,11 @@ package com.ems.service.impl
 
 import com.ems.model.*
 import com.ems.repository.EventRepository
-import com.ems.service.EventFeedbackService
-import com.ems.service.EventService
-import com.ems.service.NotificationService
-import com.ems.service.TicketService
+import com.ems.service.*
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.time.LocalDateTime
+import java.util.Collections
 import javax.transaction.Transactional
 
 @Singleton
@@ -16,7 +14,8 @@ open class EventServiceImpl(
     @Inject private val eventRepository: EventRepository,
     @Inject private val ticketService: TicketService,
     @Inject private val notificationService: NotificationService,
-    @Inject private val feedbackService: EventFeedbackService
+    @Inject private val feedbackService: EventFeedbackService,
+    @Inject private val userService: UserService
 ) : EventService {
 
     override fun create(event: Event): Event {
@@ -67,6 +66,18 @@ open class EventServiceImpl(
                     eventAnalytics = getEventAnalytics(it)
                 )
             }
+    }
+
+    override fun getAttendedEvent(username: String): List<Event> {
+        val user = userService.findByUsername(username)
+        if (user != null) {
+            return ticketService.findPurchasedTicketsByUserId(user.id!!)
+                .filter { ticket -> TicketStatus.ACTIVE == ticket.status }
+                .filter { ticket -> ticket.event.endTime < LocalDateTime.now() }
+                .map { t -> t.event }
+                .distinct()
+        }
+        return Collections.emptyList()
     }
 
     override fun existById(id: Long): Boolean {

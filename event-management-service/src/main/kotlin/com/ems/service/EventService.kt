@@ -21,6 +21,8 @@ interface EventService {
 
     fun getEventsAnalytics(dateFrom: LocalDateTime?, dateTo: LocalDateTime?): List<EventAnalyticsEnvelope>
 
+    fun getAttendedEvent(username: String): List<Event>
+
     fun existById(id: Long): Boolean
 
     fun deleteById(id: Long)
