@@ -1,11 +1,10 @@
 package com.ems.service.impl
 
-import com.ems.model.Event
-import com.ems.model.Ticket
-import com.ems.model.TicketStatus
-import com.ems.model.User
+import com.ems.model.*
 import com.ems.repository.TicketRepository
+import com.ems.service.NotificationService
 import com.ems.service.TicketService
+import com.ems.service.WaitListService
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.time.Instant
@@ -15,16 +14,24 @@ import java.util.stream.Collectors
 
 @Singleton
 class TicketServiceImpl(
-    @Inject private val ticketRepository: TicketRepository
+    @Inject private val ticketRepository: TicketRepository,
+    @Inject private val waitListService: WaitListService,
+    @Inject private val notificationService: NotificationService
 ) : TicketService {
 
-    override fun purchaseTickets(event: Event, user: User, amount: Long) {
+    override fun purchaseTickets(event: Event, user: User, amount: Long, isUnSubscribeFromWaitingList: Boolean) {
         if (event.endTime < LocalDateTime.now()) {
             throw IllegalArgumentException("Event already ended")
+        }
+        if (event.isTicketsLimited && ticketRepository.findByEvent(event).size + amount > event.maxTickets!!) {
+            throw IllegalArgumentException("Not enough tickets")
         }
         for (i in 1..amount) {
             val ticket = Ticket(event, user, Instant.now(), TicketStatus.ACTIVE)
             ticketRepository.save(ticket)
+        }
+        if (isUnSubscribeFromWaitingList) {
+            waitListService.deleteByEventAndUser(event, user)
         }
     }
 
@@ -53,6 +60,12 @@ class TicketServiceImpl(
         }
         val ticket = optionalTicket.get()
         ticket.status = TicketStatus.CANCELED
+        val event = ticket.event
+        if (event.isTicketsLimited) {
+            waitListService.findByEvent(event).stream()
+                .map { w -> w.user }
+                .forEach { user -> notificationService.addNotificationForUser(user.username, "There is new tickets for this event", NotificationType.EVENT_NEW_TICKETS, event) }
+        }
         ticketRepository.update(ticket)
     }
 

@@ -7,7 +7,7 @@ import com.ems.model.User
 
 interface TicketService {
 
-    fun purchaseTickets(event: Event, user: User, amount: Long)
+    fun purchaseTickets(event: Event, user: User, amount: Long, isUnSubscribeFromWaitingList: Boolean)
 
     fun findPurchasedTicketsByUserId(userId: Long) : MutableIterable<Ticket>
 

@@ -32,6 +32,12 @@ class Event(
     @Column
     val location: String?,
 
+    @Column(nullable = false)
+    val isTicketsLimited: Boolean,
+
+    @Column(name = "max_tickets")
+    val maxTickets: Long? = null,
+
     @Column
     val url: String?,
 

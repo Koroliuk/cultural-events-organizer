@@ -23,6 +23,10 @@ interface EventService {
 
     fun getAttendedEvent(username: String): List<Event>
 
+    fun waitForEventTickets(eventId: Long, username: String)
+
+    fun unWaitForEventTickets(eventId: Long, username: String)
+
     fun existById(id: Long): Boolean
 
     fun deleteById(id: Long)

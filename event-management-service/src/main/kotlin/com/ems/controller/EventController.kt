@@ -113,7 +113,7 @@ class EventController(
             if (user.blocked) {
                 return HttpResponse.status(HttpStatus.FORBIDDEN)
             }
-            ticketService.purchaseTickets(event, user, amount)
+            ticketService.purchaseTickets(event, user, amount, purchaseRequest.isUnSubscribeFromWaitingList)
             return HttpResponse.ok()
         }
         return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
