@@ -5,6 +5,7 @@ import io.micronaut.core.annotation.Introspected
 import java.time.LocalDateTime
 import javax.validation.constraints.Future
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.PositiveOrZero
 
 
 @Introspected
@@ -32,6 +33,9 @@ data class EventDto(
     val isTicketsLimited: Boolean,
 
     val maxTickets: Long? = null,
+
+    @PositiveOrZero
+    val price: Double,
 
     val url: String?
 )

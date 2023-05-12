@@ -30,7 +30,8 @@ class EventController(
     @Inject private val userService: UserService,
     @Inject private val eventCategoryService: EventCategoryService,
     @Inject private val s3Service: S3Service,
-    @Inject private val eventMediaService: EventMediaService
+    @Inject private val eventMediaService: EventMediaService,
+    @Inject private val discountCodeService: DiscountCodeService
 ) {
 
     @Post
@@ -118,7 +119,11 @@ class EventController(
             if (user.blocked) {
                 return HttpResponse.status(HttpStatus.FORBIDDEN)
             }
-            ticketService.purchaseTickets(event, user, amount, purchaseRequest.isUnSubscribeFromWaitingList)
+            val discountCode = if (purchaseRequest.discountCode != null) {
+                discountCodeService.findByCode(purchaseRequest.discountCode)
+                    ?: return HttpResponse.status(HttpStatus.BAD_REQUEST, "Invalid discount code")
+            } else null
+            ticketService.purchaseTickets(event, user, amount, discountCode, purchaseRequest.isUnSubscribeFromWaitingList)
             return HttpResponse.ok()
         }
         return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
