@@ -3,29 +3,34 @@ package com.ems.controller
 import com.ems.dto.EventDto
 import com.ems.dto.PurchaseRequest
 import com.ems.model.Event
+import com.ems.model.EventMedia
 import com.ems.model.EventType
-import com.ems.service.EventCategoryService
-import com.ems.service.EventService
-import com.ems.service.TicketService
-import com.ems.service.UserService
+import com.ems.service.*
+import com.ems.service.impl.S3Service
 import com.ems.utils.MappingUtils
 import io.micronaut.core.convert.format.Format
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.*
+import io.micronaut.http.multipart.CompletedFileUpload
 import io.micronaut.security.annotation.Secured
 import io.micronaut.security.rules.SecurityRule
 import jakarta.inject.Inject
+import java.io.File
+import java.io.FileOutputStream
 import java.security.Principal
 import java.time.LocalDateTime
 
 @Controller("/api/events")
 @Secured(SecurityRule.IS_AUTHENTICATED)
 class EventController(
-        @Inject private val eventService: EventService,
-        @Inject private val ticketService: TicketService,
-        @Inject private val userService: UserService,
-        @Inject private val eventCategoryService: EventCategoryService
+    @Inject private val eventService: EventService,
+    @Inject private val ticketService: TicketService,
+    @Inject private val userService: UserService,
+    @Inject private val eventCategoryService: EventCategoryService,
+    @Inject private val s3Service: S3Service,
+    @Inject private val eventMediaService: EventMediaService
 ) {
 
     @Post
@@ -117,6 +122,46 @@ class EventController(
             return HttpResponse.ok()
         }
         return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @Post("/{eventId}/media", consumes = [MediaType.MULTIPART_FORM_DATA], produces = [MediaType.TEXT_PLAIN])
+    fun uploadMedia(@PathVariable eventId: Long, @Part("file") file: CompletedFileUpload): HttpResponse<Any> {
+        val event = eventService.findById(eventId)
+
+        val tempFile = File.createTempFile(file.filename, ".tmp")
+        tempFile.deleteOnExit()
+
+        FileOutputStream(tempFile).use { output ->
+            output.write(file.bytes)
+        }
+
+        val s3Key = "events/$eventId/media/${file.filename}"
+
+        s3Service.uploadFile(tempFile, s3Key)
+        val eventMedia = EventMedia(s3Key = s3Key, event = event)
+        eventMediaService.addMediaToEvent(eventMedia)
+
+        return HttpResponse.ok(mapOf("message" to "File uploaded successfully", "s3Key" to s3Key))
+    }
+
+    @Get("/{eventId}/media")
+    fun getMediaByEventId(eventId: Long): List<EventMedia> {
+        return eventMediaService.findByEventId(eventId)
+    }
+
+    @Get("/media/{mediaId}/url")
+    fun getMediaUrl(@PathVariable mediaId: Long): HttpResponse<Any> {
+        val media = eventMediaService.findById(mediaId)
+        val presignedUrl = s3Service.generatePresignedUrl(media.s3Key)
+        return HttpResponse.ok(mapOf("url" to presignedUrl))
+    }
+
+    @Delete("/media/{mediaId}")
+    fun deleteMedia(@PathVariable mediaId: Long): HttpResponse<Any> {
+        val media = eventMediaService.findById(mediaId)
+        s3Service.deleteFile(media.s3Key)
+        eventMediaService.deleteById(mediaId)
+        return HttpResponse.noContent()
     }
 
 }

@@ -3,6 +3,9 @@ micronaut:
     name: culturalEventsOrganizer
   server:
     port: 8080
+    max-request-size: 1073741824
+    multipart:
+      max-file-size: 1073741824
   security:
     authentication: bearer
     token:
@@ -40,6 +43,13 @@ datasources:
     password: ${DB_PASSWORD}
     schema-generate: CREATE
     dialect: POSTGRES
+
+aws:
+  access-key: ""
+  secret-key: ""
+  region: "eu-central-1"
+  s3:
+    bucket-name: "events-media-kjhkjhkjhkjhkjhkjh"
 
 netty:
   default:
