@@ -14,4 +14,10 @@ interface EventRepository : CrudRepository<Event, Long> {
     """, nativeQuery = true)
     fun findEndedEvents(): MutableList<Pair<Long, Long>>
 
+    @Query("""
+        SELECT t.event_id, t.user_id FROM events JOIN tickets t on events.id = t.event_id
+         WHERE start_time BETWEEN now() AND now() + INTERVAL '30 minute'
+    """, nativeQuery = true)
+    fun findStartingEvents(): List<Pair<Long, Long>>
+
 }
