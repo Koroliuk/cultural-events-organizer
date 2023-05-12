@@ -1,13 +1,10 @@
 package com.ems.service
 
-import com.ems.model.Event
-import com.ems.model.Ticket
-import com.ems.model.TicketStatus
-import com.ems.model.User
+import com.ems.model.*
 
 interface TicketService {
 
-    fun purchaseTickets(event: Event, user: User, amount: Long, isUnSubscribeFromWaitingList: Boolean)
+    fun purchaseTickets(event: Event, user: User, amount: Long, discountCode: DiscountCode?, isUnSubscribeFromWaitingList: Boolean)
 
     fun findPurchasedTicketsByUserId(userId: Long) : MutableIterable<Ticket>
 

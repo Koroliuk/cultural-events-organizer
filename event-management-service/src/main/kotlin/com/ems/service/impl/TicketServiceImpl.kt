@@ -19,7 +19,7 @@ class TicketServiceImpl(
     @Inject private val notificationService: NotificationService
 ) : TicketService {
 
-    override fun purchaseTickets(event: Event, user: User, amount: Long, isUnSubscribeFromWaitingList: Boolean) {
+    override fun purchaseTickets(event: Event, user: User, amount: Long, discountCode: DiscountCode?, isUnSubscribeFromWaitingList: Boolean) {
         if (event.endTime < LocalDateTime.now()) {
             throw IllegalArgumentException("Event already ended")
         }
@@ -27,12 +27,21 @@ class TicketServiceImpl(
             throw IllegalArgumentException("Not enough tickets")
         }
         for (i in 1..amount) {
-            val ticket = Ticket(event, user, Instant.now(), TicketStatus.ACTIVE)
+            val price = if (discountCode != null) {
+                calculateDiscountedPrice(event.price, discountCode.discountPercentage)
+            } else {
+                event.price
+            }
+            val ticket = Ticket(event, user, Instant.now(), price, TicketStatus.ACTIVE)
             ticketRepository.save(ticket)
         }
         if (isUnSubscribeFromWaitingList) {
             waitListService.deleteByEventAndUser(event, user)
         }
+    }
+
+    private fun calculateDiscountedPrice(originalPrice: Double, discountPercentage: Float): Double {
+        return originalPrice * (1 - discountPercentage / 100)
     }
 
     override fun findPurchasedTicketsByUserId(userId: Long): MutableIterable<Ticket> {

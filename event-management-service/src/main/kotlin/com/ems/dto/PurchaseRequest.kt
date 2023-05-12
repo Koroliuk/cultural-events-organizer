@@ -12,6 +12,8 @@ class PurchaseRequest(
     @Positive
     val amount: Long,
 
-    val isUnSubscribeFromWaitingList: Boolean
+    val isUnSubscribeFromWaitingList: Boolean,
+
+    val discountCode: String? = null
 
 )

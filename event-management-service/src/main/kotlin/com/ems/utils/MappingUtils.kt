@@ -27,7 +27,8 @@ object MappingUtils {
             category = category,
             creator = user,
             isTicketsLimited = eventDto.isTicketsLimited,
-            maxTickets = eventDto.maxTickets
+            maxTickets = eventDto.maxTickets,
+            price = eventDto.price
         )
     }
 

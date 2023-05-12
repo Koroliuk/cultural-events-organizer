@@ -38,6 +38,9 @@ class Event(
     @Column(name = "max_tickets")
     val maxTickets: Long? = null,
 
+    @Column(nullable = false)
+    val price: Double,
+
     @Column
     val url: String?,
 

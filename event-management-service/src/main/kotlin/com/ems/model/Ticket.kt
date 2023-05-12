@@ -17,6 +17,9 @@ class Ticket(
     @Column(name = "purchase_time", nullable = false)
     val purchaseTime: Instant,
 
+    @Column(nullable = false)
+    val price: Double,
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: TicketStatus,
