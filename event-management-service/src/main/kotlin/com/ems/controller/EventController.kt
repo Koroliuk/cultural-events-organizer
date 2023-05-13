@@ -169,4 +169,9 @@ class EventController(
         return HttpResponse.noContent()
     }
 
+    @Get("/creator/{username}")
+    fun getEventsByCreator(username: String) : List<Event> {
+        return eventService.getByCreatorUsername(username)
+    }
+
 }

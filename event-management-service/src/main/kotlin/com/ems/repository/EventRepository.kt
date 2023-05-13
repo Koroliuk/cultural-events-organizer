@@ -33,4 +33,7 @@ interface EventRepository : CrudRepository<Event, Long> {
         AND (:categories IS NULL OR LOWER(ec.name) = ANY(ARRAY[:categories]))
     """, nativeQuery = true)
     fun searchByStartTimeBetween(timeFrom: LocalDateTime?, timeTo: LocalDateTime?, categories: List<String>?): MutableIterable<Event>
+
+    fun findByCreatorUsername(username: String): List<Event>
+
 }
