@@ -18,7 +18,7 @@ class ComplaintServiceImpl(
     @Inject private val notificationService: NotificationService,
     @Inject private val ticketService: TicketService,
     @Inject private val eventService: EventService
-): CompliantService {
+) : CompliantService {
     override fun create(complaint: Complaint): Complaint {
         return complaintRepository.save(complaint)
     }
@@ -51,14 +51,33 @@ class ComplaintServiceImpl(
         val complaint = complaintRepository.findById(id).get()
         complaint.status = ComplaintStatus.APPROVED
         val event = complaint.event
-        notificationService.addNotificationForUser(complaint.author.username, "Thanks for noticing. Event blocked", NotificationType.COMPLIANT_APPROVED, event)
-        notificationService.addNotificationForUser(event.creator.username, "Event is blocked", NotificationType.EVENT_COMPLIANT, event)
+        notificationService.addNotificationForUser(
+            complaint.author.username,
+            "Thanks for noticing. Event blocked",
+            NotificationType.COMPLIANT_APPROVED,
+            event
+        )
+        event.creators.stream()
+            .map { u -> u.username }
+            .forEach { username ->
+                notificationService.addNotificationForUser(
+                    username,
+                    "Event is blocked",
+                    NotificationType.EVENT_COMPLIANT,
+                    event
+                )
+            }
         ticketService.findByEvent(event).stream()
             .map { t ->
                 t.status = TicketStatus.CANCELED
                 return@map t
             }.forEach {
-                notificationService.addNotificationForUser(it.user.username, "Event is blocked", NotificationType.EVENT_COMPLIANT, event)
+                notificationService.addNotificationForUser(
+                    it.user.username,
+                    "Event is blocked",
+                    NotificationType.EVENT_COMPLIANT,
+                    event
+                )
                 ticketService.update(it)
             }
         event.isBlocked = true
@@ -70,6 +89,12 @@ class ComplaintServiceImpl(
         val complaint = complaintRepository.findById(id).get()
         complaint.status = ComplaintStatus.CANCELED
         val event = complaint.event
-        notificationService.addNotificationForUser(complaint.author.username, "Canceled", NotificationType.COMPLIANT_CANCELED, event)
-        complaintRepository.update(complaint)    }
+        notificationService.addNotificationForUser(
+            complaint.author.username,
+            "Canceled",
+            NotificationType.COMPLIANT_CANCELED,
+            event
+        )
+        complaintRepository.update(complaint)
+    }
 }

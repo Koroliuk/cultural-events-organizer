@@ -56,7 +56,7 @@ class EventController(
             if (category == null) {
                 throw IllegalArgumentException("No such category")
             }
-            val event = MappingUtils.convertToEntity(eventDto, category, user)
+            val event = MappingUtils.convertToEntity(eventDto, category, mutableSetOf(user))
             if (event.isPrivate) {
                 event.invitationCode = UUID.randomUUID().toString()
             }
@@ -78,7 +78,7 @@ class EventController(
         }
         val eventOld = eventService.findById(id)
         val user = userService.findByUsername(principal.name)
-        val event = MappingUtils.convertToEntity(eventDto, category, user!!)
+        val event = MappingUtils.convertToEntity(eventDto, category, mutableSetOf(user!!))
         event.id = id
         if (event.isPrivate && eventOld.isPrivate) {
             event.invitationCode = eventOld.invitationCode
@@ -207,6 +207,19 @@ class EventController(
     @Get("/creator/{username}")
     fun getEventsByCreator(username: String) : List<Event> {
         return eventService.getByCreatorUsername(username)
+    }
+
+    @Post("/{eventId}/add/{username}")
+    fun addUserManager(eventId: Long, username: String, principal: Principal): HttpResponse<Any> {
+        val event = eventService.findById(eventId)
+        if (event.creators.stream()
+                .noneMatch { u -> u.username == principal.name }) {
+            return HttpResponse.notAllowed()
+        }
+        val user = userService.findByUsername(username) ?: return HttpResponse.badRequest()
+        event.creators.add(user)
+        eventService.update(event)
+        return HttpResponse.ok()
     }
 
 }

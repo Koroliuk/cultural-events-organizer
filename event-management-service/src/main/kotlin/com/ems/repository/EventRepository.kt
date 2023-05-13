@@ -34,6 +34,12 @@ interface EventRepository : CrudRepository<Event, Long> {
     """, nativeQuery = true)
     fun searchByStartTimeBetween(timeFrom: LocalDateTime?, timeTo: LocalDateTime?, categories: List<String>?): MutableIterable<Event>
 
+    @Query("""
+        SELECT * FROM events e 
+        JOIN event_creators ec ON e.id = ec.event_id
+        JOIN users u ON u.id = ec.user_id
+        WHERE u.username = :username
+    """, nativeQuery = true)
     fun findByCreatorUsername(username: String): List<Event>
 
     fun findByInvitationCode(code: String): Event?

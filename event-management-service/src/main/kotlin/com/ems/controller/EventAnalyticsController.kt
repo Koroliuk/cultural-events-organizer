@@ -22,7 +22,9 @@ class EventAnalyticsController(
     @Get("/{eventId}")
     fun getEventAnalytics(eventId: Long, principal: Principal): HttpResponse<Any> {
         val event = eventService.findById(eventId)
-        if (event.creator.username != principal.name) {
+        if (event.creators.stream()
+                .noneMatch { u -> principal.name == u.username }
+        ) {
             return HttpResponse.notAllowed()
         }
         if (event.endTime > LocalDateTime.now()) {
@@ -32,8 +34,10 @@ class EventAnalyticsController(
     }
 
     @Get
-    fun getEventsAnalytics(@QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateFrom: LocalDateTime?,
-                           @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateTo: LocalDateTime?): HttpResponse<Any> {
+    fun getEventsAnalytics(
+        @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateFrom: LocalDateTime?,
+        @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateTo: LocalDateTime?
+    ): HttpResponse<Any> {
         return HttpResponse.ok(eventService.getEventsAnalytics(dateFrom, dateTo))
     }
 

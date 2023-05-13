@@ -7,6 +7,9 @@ import io.micronaut.data.repository.CrudRepository
 
 @Repository
 interface DiscountCodeRepository : CrudRepository<DiscountCode, Long> {
+
     fun findByCode(code: String): DiscountCode?
+
     fun findByEvent(event: Event): List<DiscountCode>
+
 }

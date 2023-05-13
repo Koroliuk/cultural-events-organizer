@@ -15,7 +15,7 @@ object MappingUtils {
         )
     }
 
-    fun convertToEntity(eventDto: EventDto, category: EventCategory, user: User): Event {
+    fun convertToEntity(eventDto: EventDto, category: EventCategory, users: MutableSet<User>): Event {
         return Event(
             name = eventDto.name,
             description = eventDto.description,
@@ -25,7 +25,7 @@ object MappingUtils {
             location = eventDto.location,
             url = eventDto.url,
             category = category,
-            creator = user,
+            creators = users,
             isTicketsLimited = eventDto.isTicketsLimited,
             maxTickets = eventDto.maxTickets,
             price = eventDto.price,
