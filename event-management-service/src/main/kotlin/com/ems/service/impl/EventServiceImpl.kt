@@ -105,4 +105,8 @@ open class EventServiceImpl(
         return eventRepository.findByCreatorUsername(username)
     }
 
+    override fun findByInvitationCode(invitationCode: String): Event? {
+        return eventRepository.findByInvitationCode(invitationCode)
+    }
+
 }
