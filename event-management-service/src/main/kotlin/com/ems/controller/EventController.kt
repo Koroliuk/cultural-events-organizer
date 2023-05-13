@@ -21,6 +21,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.security.Principal
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Controller("/api/events")
 @Secured(SecurityRule.IS_AUTHENTICATED)
@@ -56,6 +57,9 @@ class EventController(
                 throw IllegalArgumentException("No such category")
             }
             val event = MappingUtils.convertToEntity(eventDto, category, user)
+            if (event.isPrivate) {
+                event.invitationCode = UUID.randomUUID().toString()
+            }
             return HttpResponse.created(eventService.create(event))
         }
         return HttpResponse.badRequest()
@@ -72,21 +76,28 @@ class EventController(
         if (category == null) {
             throw IllegalArgumentException("No such category")
         }
+        val eventOld = eventService.findById(id)
         val user = userService.findByUsername(principal.name)
         val event = MappingUtils.convertToEntity(eventDto, category, user!!)
         event.id = id
+        if (event.isPrivate && eventOld.isPrivate) {
+            event.invitationCode = eventOld.invitationCode
+        } else if (event.isPrivate) {
+            event.invitationCode = UUID.randomUUID().toString()
+        }
         return eventService.update(event)
     }
 
     @Get("/{id}")
     @Secured("USER")
     fun findById(@PathVariable id: Long): Event {
+        //todo: filter blocked and private
         return eventService.findById(id)
     }
 
     @Get
     @Secured("USER")
-    fun findAll(): MutableIterable<Event> = eventService.findAll()
+    fun findAll(): MutableIterable<Event> = eventService.findAll().filter { !it.isPrivate }.toMutableList()
 
     @Get("/search")
     @Secured("USER")
@@ -114,6 +125,30 @@ class EventController(
         }
         val amount = purchaseRequest.amount
         val event = eventService.findById(eventId)
+        if (event.isPrivate || event.isBlocked) {
+            return HttpResponse.badRequest()
+        }
+        val user = userService.findByUsername(principal.name)
+        if (user != null) {
+            if (user.blocked) {
+                return HttpResponse.status(HttpStatus.FORBIDDEN)
+            }
+            val discountCode = if (purchaseRequest.discountCode != null) {
+                discountCodeService.findByCode(purchaseRequest.discountCode)
+                    ?: return HttpResponse.status(HttpStatus.BAD_REQUEST, "Invalid discount code")
+            } else null
+            ticketService.purchaseTickets(event, user, amount, discountCode, purchaseRequest.isUnSubscribeFromWaitingList)
+            return HttpResponse.ok()
+        }
+        return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+    @Post("/tickets-private/{invitationCode}")
+    @Secured("USER")
+    fun purchaseTicketForPrivateEvent(invitationCode: String, @Body purchaseRequest: PurchaseRequest,
+                       principal: Principal): HttpResponse<Any> {
+        val event = eventService.findByInvitationCode(invitationCode) ?: return HttpResponse.badRequest()
+        val amount = purchaseRequest.amount
         val user = userService.findByUsername(principal.name)
         if (user != null) {
             if (user.blocked) {

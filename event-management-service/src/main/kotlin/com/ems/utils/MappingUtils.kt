@@ -28,7 +28,8 @@ object MappingUtils {
             creator = user,
             isTicketsLimited = eventDto.isTicketsLimited,
             maxTickets = eventDto.maxTickets,
-            price = eventDto.price
+            price = eventDto.price,
+            isPrivate = eventDto.isPrivate
         )
     }
 

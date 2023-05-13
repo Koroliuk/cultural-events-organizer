@@ -44,6 +44,11 @@ class Event(
     @Column(nullable = false)
     var isBlocked: Boolean = false,
 
+    val isPrivate: Boolean = false,
+
+    @Column(unique = true)
+    var invitationCode: String? = null,
+
     @Column
     val url: String?,
 

@@ -36,4 +36,6 @@ interface EventRepository : CrudRepository<Event, Long> {
 
     fun findByCreatorUsername(username: String): List<Event>
 
+    fun findByInvitationCode(code: String): Event?
+
 }

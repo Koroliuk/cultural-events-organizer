@@ -33,4 +33,6 @@ interface EventService {
 
     fun getByCreatorUsername(username: String): List<Event>
 
+    fun findByInvitationCode(invitationCode: String): Event?
+
 }

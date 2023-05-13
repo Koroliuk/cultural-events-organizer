@@ -37,5 +37,7 @@ data class EventDto(
     @PositiveOrZero
     val price: Double,
 
+    val isPrivate: Boolean = false,
+
     val url: String?
 )
