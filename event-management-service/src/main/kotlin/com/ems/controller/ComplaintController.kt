@@ -33,7 +33,9 @@ class ComplaintController(
     @Secured("USER")
     fun getEventComplaints(eventId: Long, principal: Principal): HttpResponse<Any> {
         val event = eventService.findById(eventId)
-        if (event.creator.username == principal.name) {
+        if (event.creators.stream()
+                .anyMatch { u -> principal.name == u.username }
+        ) {
             return HttpResponse.ok(complaintService.getEventComplaints(eventId))
         }
         return HttpResponse.notAllowed()

@@ -50,7 +50,9 @@ class EventFeedbackController(
     fun getEventFeedbacks(eventId: Long, principal: Principal): HttpResponse<Any> {
         val user = userService.findByUsername(principal.name)
         val event = eventService.findById(eventId)
-        if (event.creator.username != user!!.username) {
+        if (event.creators.stream()
+                .noneMatch { u -> principal.name == u.username }
+        ) {
             return HttpResponse.notAllowed()
         }
         if (event.endTime > LocalDateTime.now()) {

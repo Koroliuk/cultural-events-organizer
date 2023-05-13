@@ -26,8 +26,13 @@ class Event(
     @ManyToOne
     val category: EventCategory,
 
-    @OneToOne
-    val creator: User,
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinTable(
+        name = "event_creators",
+        joinColumns = [JoinColumn(name = "event_id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id")]
+    )
+    val creators: MutableSet<User> = HashSet(),
 
     @Column
     val location: String?,
