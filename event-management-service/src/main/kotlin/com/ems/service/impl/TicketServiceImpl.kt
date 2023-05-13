@@ -18,6 +18,9 @@ class TicketServiceImpl(
     @Inject private val waitListService: WaitListService,
     @Inject private val notificationService: NotificationService
 ) : TicketService {
+    override fun update(ticket: Ticket) {
+        ticketRepository.update(ticket)
+    }
 
     override fun purchaseTickets(event: Event, user: User, amount: Long, discountCode: DiscountCode?, isUnSubscribeFromWaitingList: Boolean) {
         if (event.endTime < LocalDateTime.now()) {
@@ -56,6 +59,10 @@ class TicketServiceImpl(
 
     override fun findByEventAndUser(event: Event, user: User): Ticket? {
         return ticketRepository.findByEventAndUser(event, user)
+    }
+
+    override fun findByEvent(event: Event): List<Ticket> {
+        return ticketRepository.findByEvent(event)
     }
 
     override fun countByStatusAndEventId(status: TicketStatus, eventId: Long): Long {
