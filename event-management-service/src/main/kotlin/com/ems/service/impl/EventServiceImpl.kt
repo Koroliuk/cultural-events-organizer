@@ -101,4 +101,8 @@ open class EventServiceImpl(
         eventRepository.deleteById(id)
     }
 
+    override fun getByCreatorUsername(username: String): List<Event> {
+        return eventRepository.findByCreatorUsername(username)
+    }
+
 }

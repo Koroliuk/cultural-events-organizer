@@ -31,4 +31,6 @@ interface EventService {
 
     fun deleteById(id: Long)
 
+    fun getByCreatorUsername(username: String): List<Event>
+
 }
