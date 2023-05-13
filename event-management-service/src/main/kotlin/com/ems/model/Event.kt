@@ -41,6 +41,9 @@ class Event(
     @Column(nullable = false)
     val price: Double,
 
+    @Column(nullable = false)
+    var isBlocked: Boolean = false,
+
     @Column
     val url: String?,
 

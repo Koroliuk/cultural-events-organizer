@@ -38,4 +38,5 @@ class UserController(
         eventService.unWaitForEventTickets(eventId, principal.name)
         return HttpResponse.ok()
     }
+
 }
