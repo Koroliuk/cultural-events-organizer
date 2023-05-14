@@ -44,6 +44,19 @@ class Event(
     val maxTickets: Long? = null,
 
     @Column(nullable = false)
+    val isAskingForVolunteers: Boolean = false,
+
+    val maxVolunteersAmount: Long? = null,
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @JoinTable(
+        name = "event_volunteers",
+        joinColumns = [JoinColumn(name = "event_id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id")]
+    )
+    val volunteers: MutableSet<User> = HashSet(),
+
+    @Column(nullable = false)
     val price: Double,
 
     @Column(nullable = false)
