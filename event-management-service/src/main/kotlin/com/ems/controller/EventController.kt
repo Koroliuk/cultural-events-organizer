@@ -2,9 +2,7 @@ package com.ems.controller
 
 import com.ems.dto.EventDto
 import com.ems.dto.PurchaseRequest
-import com.ems.model.Event
-import com.ems.model.EventMedia
-import com.ems.model.EventType
+import com.ems.model.*
 import com.ems.service.*
 import com.ems.service.impl.S3Service
 import com.ems.utils.MappingUtils
@@ -32,7 +30,8 @@ class EventController(
     @Inject private val eventCategoryService: EventCategoryService,
     @Inject private val s3Service: S3Service,
     @Inject private val eventMediaService: EventMediaService,
-    @Inject private val discountCodeService: DiscountCodeService
+    @Inject private val discountCodeService: DiscountCodeService,
+    @Inject private val volunteerApplicationService: VolunteerApplicationService
 ) {
 
     @Post
@@ -101,10 +100,12 @@ class EventController(
 
     @Get("/search")
     @Secured("USER")
-    fun searchEvents(@QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateFrom: LocalDateTime?,
-                     @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateTo: LocalDateTime?,
-                     @QueryValue keywords: List<String>?,
-                     @QueryValue categories: List<String>?): MutableIterable<Event> {
+    fun searchEvents(
+        @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateFrom: LocalDateTime?,
+        @QueryValue @Format("yyyy-MM-dd'T'HH:mm:ss'Z'") dateTo: LocalDateTime?,
+        @QueryValue keywords: List<String>?,
+        @QueryValue categories: List<String>?
+    ): MutableIterable<Event> {
         return eventService.searchEvents(keywords, categories, dateFrom, dateTo)
     }
 
@@ -118,8 +119,10 @@ class EventController(
 
     @Post("{eventId}/tickets")
     @Secured("USER")
-    fun purchaseTicket(@PathVariable eventId: Long, @Body purchaseRequest: PurchaseRequest,
-                       principal: Principal): HttpResponse<Any> {
+    fun purchaseTicket(
+        @PathVariable eventId: Long, @Body purchaseRequest: PurchaseRequest,
+        principal: Principal
+    ): HttpResponse<Any> {
         if (!eventService.existById(eventId)) {
             throw java.lang.IllegalArgumentException("There is no such event")
         }
@@ -137,7 +140,13 @@ class EventController(
                 discountCodeService.findByCode(purchaseRequest.discountCode)
                     ?: return HttpResponse.status(HttpStatus.BAD_REQUEST, "Invalid discount code")
             } else null
-            ticketService.purchaseTickets(event, user, amount, discountCode, purchaseRequest.isUnSubscribeFromWaitingList)
+            ticketService.purchaseTickets(
+                event,
+                user,
+                amount,
+                discountCode,
+                purchaseRequest.isUnSubscribeFromWaitingList
+            )
             return HttpResponse.ok()
         }
         return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -145,8 +154,10 @@ class EventController(
 
     @Post("/tickets-private/{invitationCode}")
     @Secured("USER")
-    fun purchaseTicketForPrivateEvent(invitationCode: String, @Body purchaseRequest: PurchaseRequest,
-                       principal: Principal): HttpResponse<Any> {
+    fun purchaseTicketForPrivateEvent(
+        invitationCode: String, @Body purchaseRequest: PurchaseRequest,
+        principal: Principal
+    ): HttpResponse<Any> {
         val event = eventService.findByInvitationCode(invitationCode) ?: return HttpResponse.badRequest()
         val amount = purchaseRequest.amount
         val user = userService.findByUsername(principal.name)
@@ -158,7 +169,13 @@ class EventController(
                 discountCodeService.findByCode(purchaseRequest.discountCode)
                     ?: return HttpResponse.status(HttpStatus.BAD_REQUEST, "Invalid discount code")
             } else null
-            ticketService.purchaseTickets(event, user, amount, discountCode, purchaseRequest.isUnSubscribeFromWaitingList)
+            ticketService.purchaseTickets(
+                event,
+                user,
+                amount,
+                discountCode,
+                purchaseRequest.isUnSubscribeFromWaitingList
+            )
             return HttpResponse.ok()
         }
         return HttpResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -205,7 +222,7 @@ class EventController(
     }
 
     @Get("/creator/{username}")
-    fun getEventsByCreator(username: String) : List<Event> {
+    fun getEventsByCreator(username: String): List<Event> {
         return eventService.getByCreatorUsername(username)
     }
 
@@ -213,13 +230,85 @@ class EventController(
     fun addUserManager(eventId: Long, username: String, principal: Principal): HttpResponse<Any> {
         val event = eventService.findById(eventId)
         if (event.creators.stream()
-                .noneMatch { u -> u.username == principal.name }) {
+                .noneMatch { u -> u.username == principal.name }
+        ) {
             return HttpResponse.notAllowed()
         }
         val user = userService.findByUsername(username) ?: return HttpResponse.badRequest()
         event.creators.add(user)
         eventService.update(event)
         return HttpResponse.ok()
+    }
+
+    @Post("/{eventId}/volunteer")
+    @Secured("USER")
+    fun createVolunteerApplication(
+        @PathVariable eventId: Long,
+        principal: Principal
+    ): HttpResponse<Any> {
+        val user = userService.findByUsername(principal.name)
+        if (user != null) {
+            val event = eventService.findById(eventId)
+            if (event.isAskingForVolunteers) {
+                val volunteerApplication = VolunteerApplication(event = event, user = user)
+                return HttpResponse.created(volunteerApplicationService.create(volunteerApplication))
+            }
+        }
+        return HttpResponse.badRequest()
+    }
+
+    @Delete("/{eventId}/volunteer")
+    @Secured("USER")
+    fun deleteVolunteerApplication(
+        @PathVariable eventId: Long,
+        principal: Principal
+    ): HttpResponse<Any> {
+        val user = userService.findByUsername(principal.name)
+        if (user != null) {
+            val event = eventService.findById(eventId)
+            volunteerApplicationService.deleteByUserAndEvent(event, user)
+            return HttpResponse.noContent()
+        }
+        return HttpResponse.badRequest()
+    }
+
+    @Get("/{eventId}/volunteer")
+    @Secured("USER")
+    fun getVolunteerApplicationsByEventId(@PathVariable eventId: Long): List<VolunteerApplication> {
+        val event = eventService.findById(eventId)
+        return volunteerApplicationService.findByEvent(event)
+    }
+
+    @Put("/{eventId}/volunteer/approve/{applicationId}")
+    @Secured("USER")
+    fun approveVolunteerApplication(
+        @PathVariable eventId: Long,
+        @PathVariable applicationId: Long
+    ): HttpResponse<Any> {
+        val event = eventService.findById(eventId)
+        val volunteerApplication = volunteerApplicationService.findById(applicationId)
+        if (volunteerApplication != null && volunteerApplication.event == event) {
+            volunteerApplication.status = VolunteerApplicationStatus.APPROVED
+            volunteerApplicationService.update(volunteerApplication)
+            return HttpResponse.ok()
+        }
+        return HttpResponse.badRequest()
+    }
+
+    @Put("/{eventId}/volunteer/reject/{applicationId}")
+    @Secured("USER")
+    fun rejectVolunteerApplication(
+        @PathVariable eventId: Long,
+        @PathVariable applicationId: Long
+    ): HttpResponse<Any> {
+        val event = eventService.findById(eventId)
+        val volunteerApplication = volunteerApplicationService.findById(applicationId)
+        if (volunteerApplication != null && volunteerApplication.event == event) {
+            volunteerApplication.status = VolunteerApplicationStatus.REJECTED
+            volunteerApplicationService.update(volunteerApplication)
+            return HttpResponse.ok()
+        }
+        return HttpResponse.badRequest()
     }
 
 }

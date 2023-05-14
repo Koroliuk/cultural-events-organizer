@@ -39,5 +39,10 @@ data class EventDto(
 
     val isPrivate: Boolean = false,
 
-    val url: String?
+    val url: String?,
+
+    val isAskingForVolunteers: Boolean = false,
+
+    val maxVolunteersAmount: Long? = null
+
 )
