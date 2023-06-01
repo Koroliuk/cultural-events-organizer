@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.ess
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle
+features: [ annotation-api, app-name, aws-lambda, aws-lambda-handler-default, gradle, jackson-databind, junit, kotlin, kotlin-application, kotlin-build, logback, micronaut-build, readme, shade, snapstart, x86, yaml ]

@@ -1,0 +1,9 @@
+micronaut:
+  application:
+    name: emailSenderService
+
+smtp:
+  server: ${SERVER}
+  port: ${PORT}
+  username: ${USERNAME}
+  password: ${PASSWORD}

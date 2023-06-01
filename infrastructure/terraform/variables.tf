@@ -64,7 +64,7 @@ variable "rds_final_snapshot_identifier" {
 }
 
 variable "ems_service_port" {
-  default = 8080
+  default = 80
 }
 
 variable "jwt_generation_signature_secret" {

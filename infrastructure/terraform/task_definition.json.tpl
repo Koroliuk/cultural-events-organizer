@@ -5,9 +5,9 @@
       "image":"${REPOSITORY_URL}",
       "portMappings":[
          {
-            "containerPort":8080,
-            "hostPort":8080,
-            "protocol":"tcp"
+            "containerPort":80,
+            "hostPort":80,
+            "protocol":"http"
          }
       ],
       "logConfiguration": {
@@ -38,6 +38,10 @@
          {
              "name":"JWT_GENERATOR_SIGNATURE_SECRET",
              "value":"${JWT_GENERATOR_SIGNATURE_SECRET}"
+         },
+         {
+             "name":"QUEUE_URL",
+             "value":"${QUEUE_URL}"
          }
       ]
    }
