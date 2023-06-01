@@ -114,6 +114,32 @@ resource "aws_iam_role_policy_attachment" "ecs-task-role-policy-attachment2" {
   policy_arn = aws_iam_policy.s3_policy.arn
 }
 
+resource "aws_iam_policy" "sqs_policy" {
+  name        = "${var.ecs_task_definition_name}-task-policy-sqs"
+  description = "Policy that allows access to SQS"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage"
+      ],
+      "Resource": "${aws_sqs_queue.email_queue.arn}"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ecs-task-sqs-policy-attachment" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.sqs_policy.arn
+}
+
+
 resource "aws_iam_role" "lambda_execution_role" {
   name = "lambda-execution-role"
   assume_role_policy = jsonencode({

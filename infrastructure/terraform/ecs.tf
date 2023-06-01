@@ -12,8 +12,8 @@ resource "aws_ecs_task_definition" "task_definition" {
   task_role_arn = aws_iam_role.ecs_task_role.arn
   requires_compatibilities = ["FARGATE"]
   network_mode = "awsvpc"
-  cpu = 256
-  memory = 512
+  cpu = 1024
+  memory = 2048
   container_definitions = data.template_file.task_definition_template.rendered
 }
 
@@ -27,7 +27,8 @@ data "template_file" "task_definition_template" {
     POSTGRES_DATABASE = aws_db_instance.rds_instance.db_name
     REGION = var.region,
     JWT_GENERATOR_SIGNATURE_SECRET = var.jwt_generation_signature_secret
-    CLOUDWATCH_GROUP = aws_cloudwatch_log_group.logs.name
+    CLOUDWATCH_GROUP = aws_cloudwatch_log_group.logs.name,
+    QUEUE_URL = aws_sqs_queue.email_queue.id
   }
 }
 
