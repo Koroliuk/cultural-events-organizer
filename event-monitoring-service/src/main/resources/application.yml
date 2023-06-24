@@ -25,3 +25,6 @@ netty:
   default:
     allocator:
       max-order: 3
+
+event-monitoring-service:
+  batch-size: ${BATCH_SIZE:100}

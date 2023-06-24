@@ -8,7 +8,7 @@ plugins {
 }
 
 version = "0.1"
-group = "com.ems"
+group = "com.koroliuk.emms"
 
 repositories {
     mavenCentral()
@@ -42,14 +42,18 @@ dependencies {
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     compileOnly("org.graalvm.nativeimage:svm")
     testImplementation("com.h2database:h2")
+    implementation('commons-codec:commons-codec:1.13')
 }
 
 allOpen {
     annotations("javax.persistence.Entity", "javax.persistence.MappedSuperclass", "javax.persistence.Embedabble")
+    annotation("io.micronaut.http.annotation.Controller")
+    annotation("io.micronaut.http.annotation.Get")
+    annotation("javax.transaction.Transactional")
 }
 
 application {
-    mainClass.set("com.ems.ApplicationKt")
+    mainClass.set("com.koroliuk.emms.ApplicationKt")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("17")
@@ -73,7 +77,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("com.ems.*")
+        annotations("com.koroliuk.emms.*")
     }
 }
 

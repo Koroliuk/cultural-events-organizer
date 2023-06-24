@@ -10,35 +10,32 @@ resource "aws_vpc" "vpc" {
   enable_dns_support    = true
 
   tags = {
-    Name = "cultural-events-organizer-vpc"
+    service-name : local.service_name
   }
 }
 
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = "cultural-events-organizer-igw"
+    service-name : local.service_name
   }
 }
 
-resource "aws_route_table" "rt_public" {
+resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.vpc.id
-
   route {
     cidr_block = var.rt_wide_route
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
-
   tags = {
-    Name = "cultural-events-organizer-rt-public"
+    service-name : local.service_name
   }
 }
 
-resource "aws_default_route_table" "rt_private_default" {
+resource "aws_default_route_table" "private_route_table" {
   default_route_table_id = aws_vpc.vpc.default_route_table_id
-
   tags = {
-    Name = "cultural-events-organizer-rt-private-default"
+    service-name : local.service_name
   }
 }
 
@@ -48,9 +45,8 @@ resource "aws_subnet" "public_subnets" {
   vpc_id = aws_vpc.vpc.id
   availability_zone = data.aws_availability_zones.azs.names[count.index]
   map_public_ip_on_launch = true
-
   tags = {
-    Name = "cultural-events-organizer-tf-public-${count.index + 1}"
+    service-name : local.service_name
   }
 }
 
@@ -59,20 +55,19 @@ resource "aws_subnet" "private_subnets" {
   cidr_block        = "10.0.${var.subnet_count * (var.infrastructure_version - 1) + count.index + 1 + var.subnet_count}.0/24"
   vpc_id            = aws_vpc.vpc.id
   availability_zone = data.aws_availability_zones.azs.names[count.index]
-
   tags = {
-    Name = "cultural-events-organizer-tf-private-${count.index + 1}"
+    service-name : local.service_name
   }
 }
 
-resource "aws_route_table_association" "public-rt-association" {
+resource "aws_route_table_association" "public_route_table_association" {
   count = var.subnet_count
-  route_table_id = aws_route_table.rt_public.id
+  route_table_id = aws_route_table.public_route_table.id
   subnet_id = aws_subnet.public_subnets.*.id[count.index]
 }
 
-resource "aws_route_table_association" "private-rt-association" {
+resource "aws_route_table_association" "private_route_table_association" {
   count = var.subnet_count
-  route_table_id = aws_route_table.rt_public.id
+  route_table_id = aws_route_table.public_route_table.id
   subnet_id = aws_subnet.private_subnets.*.id[count.index]
 }

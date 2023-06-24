@@ -15,17 +15,17 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET}"'
+              secret: ${JWT_GENERATOR_SIGNATURE_SECRET}
         generator:
           refresh-token:
-            secret: '"${JWT_GENERATOR_SIGNATURE_SECRET}"'
+            secret: ${JWT_GENERATOR_SIGNATURE_SECRET}
     endpoints:
       login:
         path: /api/login
       logout:
         enabled: false
       oauth:
-        path: /api/refresh_token
+        path: /api/refresh-token
 
 jpa:
   default:
@@ -49,7 +49,7 @@ aws:
   secret-key: ""
   region: "eu-central-1"
   s3:
-    bucket-name: "events-media-kjhkjhkjhkjhkjhkjh"
+    bucket-name: "emms-events-media-storage"
   sqs:
     name: ${QUEUE_URL}
 

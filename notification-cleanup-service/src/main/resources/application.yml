@@ -21,5 +21,6 @@ jpa:
           auto: update
         show_sql: true
 
-cleanup:
-  expiration-in-days: 30
+notification-cleanup-service:
+  expiration-in-days: ${EXPIRATION_IN_DAYS:30}
+  batch-size: ${BATCH_SIZE:1000}

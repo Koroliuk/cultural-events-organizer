@@ -1,6 +1,60 @@
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.ecs_task_definition_name}-ecsTaskExecutionRole"
+locals {
+  email_sender_lambda_role_name = "ess-email-sender-role"
+  ecs_task_execution_role_name = "ecs-task-execution-role"
+  ecs_task_role_name = "ecs-task-role"
+}
 
+resource "aws_iam_role" "email_sender_role_name" {
+  name               = local.email_sender_lambda_role_name
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "sqs_policy" {
+  name = local.lambda_sqs_policy
+  role = aws_iam_role.email_sender_role_name.id
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:ReceiveMessage"
+      ],
+      "Resource": "${aws_sqs_queue.email_queue.arn}"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = local.ecs_task_execution_role_name
   assume_role_policy = <<EOF
 {
  "Version": "2012-10-17",
@@ -16,16 +70,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
  ]
 }
 EOF
-}
-
-resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.ecs_task_definition_name}-ecsTaskRole"
-
+  name = local.ecs_task_role_name
   assume_role_policy = <<EOF
 {
  "Version": "2012-10-17",
@@ -43,11 +91,8 @@ resource "aws_iam_role" "ecs_task_role" {
 EOF
 }
 
-
-resource "aws_iam_policy" "cloudwatch" {
+resource "aws_iam_policy" "cloudwatch_policy" {
   name        = "${var.ecs_task_definition_name}-task-policy-cloudwatch"
-  description = "Policy that allows access to cloudwatch"
-
  policy = <<EOF
 {
    "Version": "2012-10-17",
@@ -84,11 +129,6 @@ resource "aws_iam_policy" "cloudwatch" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-task-role-policy-attachment" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.cloudwatch.arn
-}
-
 resource "aws_iam_policy" "s3_policy" {
   name        = "${var.ecs_task_definition_name}-task-policy-s3"
   description = "Policy that allows access to s3"
@@ -109,15 +149,8 @@ resource "aws_iam_policy" "s3_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-task-role-policy-attachment2" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.s3_policy.arn
-}
-
 resource "aws_iam_policy" "sqs_policy" {
   name        = "${var.ecs_task_definition_name}-task-policy-sqs"
-  description = "Policy that allows access to SQS"
-
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -134,11 +167,25 @@ resource "aws_iam_policy" "sqs_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-task-sqs-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "ecs_task_role_s3_policy" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.s3_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_role_cloudwatch_policy_attachment" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.cloudwatch_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_aws_policy_attachment" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_sqs_policy_attachment" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.sqs_policy.arn
 }
-
 
 resource "aws_iam_role" "lambda_execution_role" {
   name = "lambda-execution-role"
@@ -180,4 +227,5 @@ resource "aws_iam_policy" "lambda_policy" {
 resource "aws_iam_role_policy_attachment" "lambda_execution_role_lambda_policy_attachment" {
   policy_arn = aws_iam_policy.lambda_policy.arn
   role = aws_iam_role.lambda_execution_role.name
+
 }

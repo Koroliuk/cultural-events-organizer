@@ -2,8 +2,11 @@ micronaut:
   application:
     name: emailSenderService
 
+email:
+  send-from: ${EMAIL_SEND_FROM}
+
 smtp:
-  server: ${SERVER}
-  port: ${PORT}
-  username: ${USERNAME}
-  password: ${PASSWORD}
+  server: ${SMTP_SERVER}
+  port: ${SMTP_PORT}
+  username: ${SMTP_USERNAME}
+  password: ${SMTP_PASSWORD}
