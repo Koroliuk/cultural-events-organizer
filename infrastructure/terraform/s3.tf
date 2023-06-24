@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "data_bucket" {
-  bucket = "events-media-kjhkjhkjhkjhkjhkjh"
+  bucket = "emms-events-media-storage"
 }
 
 resource "aws_s3_bucket_public_access_block" "app" {
